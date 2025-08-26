@@ -1,0 +1,136 @@
+﻿-- sahil rane--
+-- batch 31 --
+
+select * from Books;
+SELECT * from MEMBER;
+select * from ISSUE;
+
+-- query 1
+SELECT Book_No, Book_Name, Author_name, Cost
+FROM Books
+WHERE Author_name = 'Loni'
+AND Cost < 600;
+
+-- query 2
+SELECT *
+FROM Issue
+WHERE Return_date IS NULL;
+
+-- query 3
+UPDATE Issue
+SET Return_date = TO_DATE('31-DEC-2006','DD-MON-YYYY')
+WHERE Return_date IS NULL
+AND Book_No NOT IN (7005, 7006);
+
+-- query 4
+SELECT *
+FROM Issue
+WHERE (NVL(Return_date, SYSDATE) - Issue_Date) > 30;
+
+-- query 5
+SELECT *
+FROM Books
+WHERE Cost BETWEEN 500 AND 750
+AND Category = 'Database';
+
+-- query 6
+SELECT *
+FROM Books
+WHERE Category IN ('Science','Database','Fiction','Management');
+
+-- query 7
+SELECT *
+FROM Member
+ORDER BY Penalty_Amount DESC;
+
+-- query 8
+SELECT *
+FROM Books
+ORDER BY Category ASC, Cost DESC;
+
+-- query 9
+SELECT *
+FROM Books
+WHERE Book_Name LIKE '%SQL%';
+
+-- query 10
+SELECT *
+FROM Member
+WHERE (Member_Name LIKE 'R%I%' OR Member_Name LIKE 'G%I%');
+
+-- query 11
+SELECT INITCAP(Book_Name) AS Book_Name,
+UPPER(Author_name) AS Author
+FROM Books
+ORDER BY Book_Name DESC;
+
+-- query 12
+SELECT Lib_Issue_Id,
+TO_CHAR(Issue_Date,'Day, Month, DD, YYYY') AS Issue_Date,
+TO_CHAR(Return_date,'Day, Month, DD, YYYY') AS Return_Date
+FROM Issue
+WHERE Member_Id = 101;
+
+-- query 13
+SELECT Book_No, Book_Name,
+CASE Category
+WHEN 'Database' THEN 'D'
+WHEN 'Science'  THEN 'S'
+WHEN 'RDBMS'   THEN 'R'
+ELSE 'O'
+END AS Category_Code
+FROM Books;
+
+-- query 14
+SELECT *
+FROM Member
+WHERE TO_NUMBER(TO_CHAR(Acc_Open_Date, 'YYYY')) = 2006;
+
+-- query 15
+SELECT Lib_Issue_Id, Issue_Date, Return_date,
+(NVL(Return_date, SYSDATE) - Issue_Date) AS Days_Issued
+FROM Issue;
+
+-- query 16
+SELECT *
+FROM Member
+ORDER BY Acc_Open_Date;
+
+-- query 17
+SELECT COUNT(*) AS Books_Issued
+FROM Issue
+WHERE Member_Id = 101;
+
+-- query 18
+SELECT SUM(Penalty_Amount) AS Total_Penalty
+FROM Member;
+
+-- query 19
+SELECT COUNT(*) AS Total_Members
+FROM Member;
+
+-- query 20
+SELECT COUNT(*) AS Total_Issued
+FROM Issue;
+
+-- query 21
+SELECT AVG(Fees_paid) AS Avg_Fee
+FROM Member;
+
+-- query 22
+SELECT Lib_Issue_Id,
+MONTHS_BETWEEN(NVL(Return_date,SYSDATE), Issue_Date) AS Months_Issued
+FROM Issue;
+
+-- query 23
+SELECT Member_Id, Member_Name, LENGTH(Member_Name) AS Name_Length
+FROM Member;
+
+-- query 24
+SELECT Member_Id, SUBSTR(Membership_type,1,5) AS Short_Type
+FROM Member;
+
+-- query 25
+SELECT Lib_Issue_Id, Issue_Date,
+LAST_DAY(Issue_Date) AS Last_Day
+FROM Issue;
