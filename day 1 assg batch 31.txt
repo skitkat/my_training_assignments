@@ -134,3 +134,4 @@ FROM Member;
 SELECT Lib_Issue_Id, Issue_Date,
 LAST_DAY(Issue_Date) AS Last_Day
 FROM Issue;
+
