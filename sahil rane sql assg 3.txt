@@ -1,0 +1,139 @@
+﻿-- sahil rane--
+-- batch 31 ---
+
+-- Insert dummy values into Books table
+INSERT INTO Books VALUES (109, 'AI Basics', 'Andrew Ng', 1200, 'Science');
+INSERT INTO Books VALUES (110, 'Machine Learning', 'Tom Mitchell', 1500, 'Science');
+INSERT INTO Books VALUES (111, 'Sherlock Holmes', 'Arthur Conan Doyle', 700, 'Fiction');
+INSERT INTO Books VALUES (112, 'Data Structures', 'Narasimha Karumanchi', 650, 'RDBMS');
+INSERT INTO Books VALUES (113, 'SQL Cookbook', 'Anthony Molinaro', 850, 'Database');
+INSERT INTO Books VALUES (114, 'Algorithms', 'Robert Sedgewick', 900, 'Science');
+INSERT INTO Books VALUES (115, 'The Hobbit', 'J R R Tolkien', 550, 'Fiction');
+INSERT INTO Books VALUES (116, 'Python Crash Course', 'Eric Matthes', 800, 'Others');
+INSERT INTO Books VALUES (117, 'Deep Learning', 'Ian Goodfellow', 1800, 'Science');
+INSERT INTO Books VALUES (118, 'Database Management', 'Elmasri', 950, 'Database');
+
+COMMIT;
+-- query 1 : List the various categories and count of books in each category
+SELECT Category, COUNT(*) AS Book_Count
+FROM Books
+GROUP BY Category;
+
+-- query 2 : List the book_No and the number of times the book is issued in the descending order of count
+SELECT Book_No, COUNT(*) AS Issue_Count
+FROM Issue
+GROUP BY Book_No
+ORDER BY Issue_Count DESC;
+
+-- query 3 : Find the maximum, minimum, total and average penalty amount in the member table
+SELECT MAX(Penalty_Amount) AS MaxPenalty,
+MIN(Penalty_Amount) AS MinPenalty,
+SUM(Penalty_Amount) AS TotalPenalty,
+AVG(Penalty_Amount) AS AvgPenalty
+FROM Member;
+
+-- query 4 : Display the member id and the no of books for each member that has issued more than 2 books
+SELECT Member_Id, COUNT() AS BooksIssued
+FROM Issue
+GROUP BY Member_Id
+HAVING COUNT() > 2;
+
+-- query 5 : Display the member id, book no and no of times the same book is issued by the member in the descending order of count
+SELECT Member_Id, Book_No, COUNT() AS TimesIssued
+FROM Issue
+GROUP BY Member_Id, Book_No
+HAVING COUNT() > 1
+ORDER BY TimesIssued DESC;
+
+-- query 6 : Display the month and no of books issued each month in the descending order of count
+SELECT TO_CHAR(Issue_Date,'MON') AS Month, COUNT(*) AS BooksIssued
+FROM Issue
+GROUP BY TO_CHAR(Issue_Date,'MON')
+ORDER BY BooksIssued DESC;
+
+-- query 7 : List the book_no of all the books that are not issued to any member so far
+SELECT Book_No
+FROM Books
+WHERE Book_No NOT IN (SELECT DISTINCT Book_No FROM Issue);
+
+-- query 8 : List all the member id that exist in member table and has also at least one book issued by them
+SELECT DISTINCT m.Member_Id
+FROM Member m
+JOIN Issue i ON m.Member_Id = i.Member_Id;
+
+-- query 9 : List the member ID with highest and lowest no of books issued
+SELECT Member_Id, COUNT() AS BooksIssued
+FROM Issue
+GROUP BY Member_Id
+HAVING COUNT() = (SELECT MAX(Cnt) FROM (SELECT COUNT() Cnt FROM Issue GROUP BY Member_Id))
+OR COUNT() = (SELECT MIN(Cnt) FROM (SELECT COUNT(*) Cnt FROM Issue GROUP BY Member_Id));
+
+-- query 10 : List all the Issue_details for books issued in December and July without using any arithmetic, Logical or comparison operator
+SELECT *
+FROM Issue
+WHERE TO_CHAR(Issue_Date,'MON') IN ('DEC','JUL');
+
+-- query 11 : List the Book_No, Book_Name and Issue_date for all the books that are issued in month of December and belong to category Database
+SELECT i.Book_No, b.Book_Name, i.Issue_Date
+FROM Issue i
+JOIN Books b ON i.Book_No = b.Book_No
+WHERE TO_CHAR(i.Issue_Date,'MON') = 'DEC' AND b.Category = 'Database';
+
+-- query 12 : List the Member Id, Member Name and No of books Issued in the descending order of the count
+SELECT m.Member_Id, m.Member_Name, COUNT(i.Book_No) AS BooksIssued
+FROM Member m
+JOIN Issue i ON m.Member_Id = i.Member_Id
+GROUP BY m.Member_Id, m.Member_Name
+ORDER BY BooksIssued DESC;
+
+-- query 13 : List the Book No, Book Name, Issue_date and Return_Date for all the books issued by Richa Sharma
+SELECT i.Book_No, b.Book_Name, i.Issue_Date, i.Return_Date
+FROM Issue i
+JOIN Member m ON i.Member_Id = m.Member_Id
+JOIN Books b ON i.Book_No = b.Book_No
+WHERE m.Member_Name = 'Richa Sharma';
+
+-- query 14 : List the details of all the members that have issued books in Database category
+SELECT DISTINCT m.*
+FROM Member m
+JOIN Issue i ON m.Member_Id = i.Member_Id
+JOIN Books b ON i.Book_No = b.Book_No
+WHERE b.Category = 'Database';
+
+-- query 15 : List all the books that have highest price in their own category
+SELECT *
+FROM Books b1
+WHERE Cost = (SELECT MAX(Cost) FROM Books b2 WHERE b1.Category = b2.Category);
+
+-- query 16 : List all the Issue_Details where Issue_date is not within the Acc_open_date and Return_date for that member
+SELECT i.*
+FROM Issue i
+JOIN Member m ON i.Member_Id = m.Member_Id
+WHERE (i.Issue_Date < m.Acc_Open_Date) OR (i.Issue_Date > i.Return_Date);
+
+-- query 17 : List all the members that have not issued a single book so far
+SELECT *
+FROM Member m
+WHERE m.Member_Id NOT IN (SELECT DISTINCT Member_Id FROM Issue);
+
+-- query 18 : List all the Members where No of books Issued exceeds the Max No of books allowed
+SELECT m.Member_Id, m.Member_Name, COUNT(i.Book_No) AS IssuedBooks, m.Max_Books_Allowed
+FROM Member m
+JOIN Issue i ON m.Member_Id = i.Member_Id
+GROUP BY m.Member_Id, m.Member_Name, m.Max_Books_Allowed
+HAVING COUNT(i.Book_No) > m.Max_Books_Allowed;
+
+-- query 19 : List all the members that have issued the same book as issued by Garima
+SELECT DISTINCT m.Member_Id, m.Member_Name
+FROM Member m
+JOIN Issue i ON m.Member_Id = i.Member_Id
+WHERE i.Book_No IN (SELECT i2.Book_No
+FROM Issue i2
+JOIN Member m2 ON i2.Member_Id = m2.Member_Id
+WHERE m2.Member_Name = 'Garima Sen');
+
+-- query 20 : List the Book_Name, Price of all the books that are not returned for more than 30 days
+SELECT b.Book_Name, b.Cost
+FROM Issue i
+JOIN Books b ON i.Book_No = b.Book_No
+WHERE i.Return_Date IS NULL AND i.Issue_Date < SYSDATE - 30;
